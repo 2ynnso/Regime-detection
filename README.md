@@ -63,9 +63,6 @@ Recommended figures:
 
 ![Regime Overview](전략/regime%20project/figures/regime_overview.png)
 
-### Posterior Probabilities
-
-![Regime Probabilities](전략/regime%20project/figures/regime_probabilities.png)
 
 ### Portfolio Positioning
 
