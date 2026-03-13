@@ -1,41 +1,84 @@
-# Regime-Based Duration Rotation
+# Regime-Based Duration Strategy
 
-This folder contains a cleaned research pipeline for a bond regime strategy.
+This project builds a fixed income allocation strategy that detects bond market regimes with a rolling Hidden Markov Model and adjusts portfolio duration through `SHY`, `IEF`, and `TLT`.
 
-## Files
+## Project Idea
 
-- `regime_portfolio_pipeline.py`: reusable end-to-end pipeline from data download to regime detection and backtest.
-- `regime_portfolio_pipeline.ipynb`: portfolio-ready notebook version for GitHub presentation.
-- Existing legacy files are kept for reference and were not overwritten.
+The core hypothesis is that duration exposure should not be static. When rate volatility, credit conditions, and macro inflation signals shift, the portfolio should adapt its target duration instead of holding a fixed Treasury allocation.
 
-## Strategy Flow
+## Method
 
-1. Download U.S. Treasury curve, macro variables, and bond ETF prices.
-2. Build a monthly feature set using rolling PCA on daily yield changes.
-3. Detect 3 macro/rate regimes with a rolling HMM.
-4. Convert regime probabilities into a target duration.
-5. Map target duration to `SHY`, `IEF`, `TLT` weights and backtest.
+1. Download U.S. Treasury yields, macro variables, and ETF prices.
+2. Extract a monthly curve-stress feature from rolling PCA on daily yield changes.
+3. Build a macro feature set using VIX, credit spread, yield spread, and inflation.
+4. Estimate hidden market regimes with a rolling 3-state Gaussian HMM.
+5. Convert regime probabilities into target duration.
+6. Map target duration into ETF weights across `SHY`, `IEF`, and `TLT`.
+7. Compare the strategy against simple bond benchmarks.
 
-## Required Packages
+## Regime Interpretation
 
-```bash
-pip install pandas numpy matplotlib requests yfinance scikit-learn hmmlearn
+- `Calm`: moderate duration stance
+- `Risk-Off`: long duration tilt
+- `Inflation Shock`: short duration tilt
+
+## Repository Structure
+
+- `regmie_develop.ipynb`: main portfolio notebook for presentation
+- `regime_portfolio_pipeline.py`: reusable research and backtest pipeline
+- `regime_portfolio_pipeline.ipynb`: compact walkthrough notebook
+- `requirements.txt`: Python dependencies
+
+## Outputs
+
+The notebook includes:
+
+- regime timeline and posterior probabilities
+- regime-wise feature distributions
+- portfolio weight and target duration history
+- cumulative performance and drawdown charts
+- regime-level return diagnostics
+
+## README Figures
+
+After running the notebook or script, you can export static PNG files for GitHub with:
+
+```python
+from regime_portfolio_pipeline import PipelineConfig, export_readme_figures, run_pipeline
+
+results = run_pipeline(PipelineConfig())
+export_readme_figures(results)
 ```
 
-## Environment
+This saves images into `figures/`, which can then be embedded in the README.
 
-Fill in [`.env`](/Users/2ys/Desktop/KSIF/SAA/전략/regime%20project/.env) in this folder:
+Recommended figures:
+
+- `figures/regime_overview.png`
+- `figures/regime_probabilities.png`
+- `figures/strategy_weights.png`
+- `figures/backtest_dashboard.png`
+
+## Setup
+
+Install packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Add your FRED API key to [`.env`](/Users/2ys/Desktop/KSIF/SAA/전략/regime%20project/.env):
 
 ```bash
 FRED_API_KEY=your_key_here
 ```
 
-You can also copy [`.env.example`](/Users/2ys/Desktop/KSIF/SAA/전략/regime%20project/.env.example) if needed.
-
 ## Run
+
+For the portfolio presentation version, open [ `regmie_develop.ipynb` ](/Users/2ys/Desktop/KSIF/SAA/전략/regime%20project/regmie_develop.ipynb) and run the cells from top to bottom.
+
+To run the script version:
 
 ```bash
 python regime_portfolio_pipeline.py
 ```
-
-Or open `regime_portfolio_pipeline.ipynb` and run the cells sequentially.

@@ -616,6 +616,7 @@ def plot_regime_overview(features: pd.DataFrame, regime_df: pd.DataFrame) -> Non
     ax.set_ylabel("PC1 Variance Share")
     ax.legend(loc="upper left")
     plt.tight_layout()
+    return fig
 
 
 def plot_regime_feature_boxplots(features: pd.DataFrame, regime_df: pd.DataFrame) -> None:
@@ -642,6 +643,7 @@ def plot_regime_feature_boxplots(features: pd.DataFrame, regime_df: pd.DataFrame
     axes[-1].axis("off")
     fig.suptitle("Feature Distribution by Regime", fontsize=14)
     plt.tight_layout()
+    return fig
 
 
 def plot_regime_probabilities(regime_df: pd.DataFrame) -> None:
@@ -654,6 +656,7 @@ def plot_regime_probabilities(regime_df: pd.DataFrame) -> None:
     ax.set_ylim(0, 1.0)
     ax.legend(loc="upper left")
     plt.tight_layout()
+    return fig
 
 
 def plot_strategy_weights(strategy_details: pd.DataFrame) -> None:
@@ -675,6 +678,7 @@ def plot_strategy_weights(strategy_details: pd.DataFrame) -> None:
     axes[1].set_ylabel("Years")
     axes[1].set_xlabel("")
     plt.tight_layout()
+    return fig
 
 
 def plot_backtest_dashboard(return_frame: pd.DataFrame) -> None:
@@ -692,6 +696,7 @@ def plot_backtest_dashboard(return_frame: pd.DataFrame) -> None:
     axes[1].set_ylabel("Drawdown")
     axes[1].axhline(0.0, color="black", linewidth=0.8)
     plt.tight_layout()
+    return fig
 
 
 def plot_regime_performance(strategy_details: pd.DataFrame) -> None:
@@ -710,6 +715,7 @@ def plot_regime_performance(strategy_details: pd.DataFrame) -> None:
     axes[1].set_ylim(0, 1)
     axes[1].tick_params(axis="x", rotation=15)
     plt.tight_layout()
+    return fig
 
 
 def plot_backtest(return_frame: pd.DataFrame) -> None:
@@ -720,6 +726,33 @@ def plot_backtest(return_frame: pd.DataFrame) -> None:
     ax.set_title("Strategy vs Benchmarks")
     ax.set_ylabel("Cumulative Return")
     plt.tight_layout()
+    return fig
+
+
+def export_readme_figures(
+    results: Dict[str, pd.DataFrame | pd.Series],
+    output_dir: str = "figures",
+) -> Dict[str, str]:
+    plt = get_plt()
+    output_path = BASE_DIR / output_dir
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    figures = {
+        "regime_overview.png": plot_regime_overview(results["features"], results["regimes"]),
+        "regime_probabilities.png": plot_regime_probabilities(results["regimes"]),
+        "regime_features.png": plot_regime_feature_boxplots(results["features"], results["regimes"]),
+        "strategy_weights.png": plot_strategy_weights(results["strategy_details"]),
+        "regime_performance.png": plot_regime_performance(results["strategy_details"]),
+        "backtest_dashboard.png": plot_backtest_dashboard(results["returns"]),
+    }
+
+    saved = {}
+    for filename, figure in figures.items():
+        figure.savefig(output_path / filename, dpi=180, bbox_inches="tight")
+        saved[filename] = str(output_path / filename)
+        plt.close(figure)
+
+    return saved
 
 
 def run_pipeline(config: PipelineConfig) -> Dict[str, pd.DataFrame | pd.Series]:
