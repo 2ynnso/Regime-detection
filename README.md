@@ -1,2 +1,101 @@
-# regime-detection
-A regime-based fixed income strategy that combines macro signals and yield curve dynamics to rotate duration exposure across Treasury ETFs.
+# Regime-Based Duration Strategy
+
+This repository hosts a fixed income allocation strategy that detects bond market regimes with a rolling Hidden Markov Model and adjusts portfolio duration through `SHY`, `IEF`, and `TLT`.
+
+## Project Idea
+
+The core hypothesis is that duration exposure should not be static. When rate volatility, credit conditions, and macro inflation signals shift, the portfolio should adapt its target duration instead of holding a fixed Treasury allocation.
+
+## Method
+
+1. Download U.S. Treasury yields, macro variables, and ETF prices.
+2. Extract a monthly curve-stress feature from rolling PCA on daily yield changes.
+3. Build a macro feature set using VIX, credit spread, yield spread, and inflation.
+4. Estimate hidden market regimes with a rolling 3-state Gaussian HMM.
+5. Convert regime probabilities into target duration.
+6. Map target duration into ETF weights across `SHY`, `IEF`, and `TLT`.
+7. Compare the strategy against simple bond benchmarks.
+
+## Regime Interpretation
+
+- `Calm`: moderate duration stance
+- `Risk-Off`: long duration tilt
+- `Inflation Shock`: short duration tilt
+
+## Repository Structure
+
+- `전략/regime project/regmie_develop.ipynb`: main portfolio notebook for presentation
+- `전략/regime project/regime_portfolio_pipeline.py`: reusable research and backtest pipeline
+- `전략/regime project/regime_portfolio_pipeline.ipynb`: compact walkthrough notebook
+- `전략/regime project/requirements.txt`: Python dependencies
+
+## Outputs
+
+The notebook includes:
+
+- regime timeline and posterior probabilities
+- regime-wise feature distributions
+- portfolio weight and target duration history
+- cumulative performance and drawdown charts
+- regime-level return diagnostics
+
+## README Figures
+
+After running the notebook or script, you can export static PNG files for GitHub with:
+
+```python
+from regime_portfolio_pipeline import PipelineConfig, export_readme_figures, run_pipeline
+
+results = run_pipeline(PipelineConfig())
+export_readme_figures(results)
+```
+
+This saves images into `전략/regime project/figures/`, which can then be embedded in the README.
+
+Recommended figures:
+
+- `전략/regime project/figures/regime_overview.png`
+- `전략/regime project/figures/regime_probabilities.png`
+- `전략/regime project/figures/strategy_weights.png`
+- `전략/regime project/figures/backtest_dashboard.png`
+
+### Regime Overview
+
+![Regime Overview](전략/regime%20project/figures/regime_overview.png)
+
+### Posterior Probabilities
+
+![Regime Probabilities](전략/regime%20project/figures/regime_probabilities.png)
+
+### Portfolio Positioning
+
+![Strategy Weights](전략/regime%20project/figures/strategy_weights.png)
+
+### Backtest Dashboard
+
+![Backtest Dashboard](전략/regime%20project/figures/backtest_dashboard.png)
+
+## Setup
+
+Install packages:
+
+```bash
+pip install -r "전략/regime project/requirements.txt"
+```
+
+Add your FRED API key to `전략/regime project/.env`:
+
+```bash
+FRED_API_KEY=your_key_here
+```
+
+## Run
+
+For the portfolio presentation version, open `전략/regime project/regmie_develop.ipynb` and run the cells from top to bottom.
+
+To run the script version:
+
+```bash
+cd "전략/regime project"
+python regime_portfolio_pipeline.py
+```
