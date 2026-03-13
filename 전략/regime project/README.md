@@ -59,6 +59,22 @@ Recommended figures:
 - `figures/strategy_weights.png`
 - `figures/backtest_dashboard.png`
 
+### Regime Overview
+
+![Regime Overview](figures/regime_overview.png)
+
+### Posterior Probabilities
+
+![Regime Probabilities](figures/regime_probabilities.png)
+
+### Portfolio Positioning
+
+![Strategy Weights](figures/strategy_weights.png)
+
+### Backtest Dashboard
+
+![Backtest Dashboard](figures/backtest_dashboard.png)
+
 ## Setup
 
 Install packages:
